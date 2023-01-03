@@ -1,7 +1,7 @@
 import { Configuration, OpenAIApi } from 'openai';
 
 const configuration = new Configuration({
-    apiKey:'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'
+    apiKey:'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'
 })
 
 const openai = new OpenAIApi(configuration)
@@ -24,7 +24,7 @@ export const postRequest = async(req, res)=>{
         })
     } catch (error) {
         console.log(error);
-        res.status(500).send({error})
+        res.status(500).send(error)
     }
 }
 
