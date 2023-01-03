@@ -1,7 +1,9 @@
 import { Configuration, OpenAIApi } from 'openai';
+import dotenv from 'dotenv';
 
+dotenv.config();
 const configuration = new Configuration({
-    apiKey:'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'
+    apiKey:process.env.OPENAI_API_KEY
 })
 
 const openai = new OpenAIApi(configuration)
@@ -24,7 +26,7 @@ export const postRequest = async(req, res)=>{
         })
     } catch (error) {
         console.log(error);
-        res.status(500).send(error)
+        res.status(500).send({error})
     }
 }
 
