@@ -16,11 +16,10 @@ export const postRequest = async(req, res)=>{
             prompt:`${prompt}`,
             temperature:0,
             max_tokens:3000,
-            top_p:1,
-            frequency_penalty:0.0,
+            top_p:1.0,
+            frequency_penalty:0.2,
             presence_penalty:0.0,
-            stop:["\n"]
-        })
+        });
 
         res.status(200).send({
             bot:response.data.choices[0].text
