@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import './home.css';
-import {HiPaperAirplane} from 'react-icons/hi';
 import {FcAndroidOs} from 'react-icons/fc';
 import {FaUser} from 'react-icons/fa';
 import axios from 'axios';
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
+import {BsFillMicFill, BsFillMicMuteFill} from 'react-icons/bs';
 
 const Home = () => {
    const [message, setMessage] = useState('');
@@ -11,7 +12,7 @@ const Home = () => {
    const [aistate, setAiState] = useState('Idle');
    const [userInput, setUserInput] = useState('');
    const [timer, setTimer] = useState(null);
-   let mess = document.getElementById('message'); 
+   const url = 'https://gpt-3-v1.onrender.com/api/requests';
 
    
    const userType = (e)=>{
@@ -27,21 +28,27 @@ const Home = () => {
            setTyping('Thinking')
        }
    }
-    const uniqueId = ()=>{
-        const date = Date.now();
-        const rand = Math.random();
-        const hex = rand.toString(16);
-        return `id-${date}-${hex}`;
-    }
+
 
    const [isEmpty, setIsEmpty] = useState(false);
    const [aiFeedback, setAiFeedback] = useState('');
    const [black, setBlack] = useState(true);
+
+   const {
+    transcript,
+    listening,
+    resetTranscript,
+    browserSupportsSpeechRecognition,
+    isMicrophoneAvailable
+  } = useSpeechRecognition();
+
     const handleSubmit=async(e)=>{
         e.preventDefault();
+        SpeechRecognition.stopListening();
         setAiFeedback('')
         setAiState('Thinking');
         setTyping('Waiting')
+        console.log(message);
         if(message===''){
             setIsEmpty(true);
             setTyping('Idle')
@@ -52,7 +59,7 @@ const Home = () => {
                 prompt:message
             }
 
-            await axios.post('https://gpt-3-v1.onrender.com/api/requests', data).then(res=>{
+            await axios.post(url, data).then(res=>{
                 setAiState('Idle');
                 setTyping('Idle')
                 setUserInput(message);
@@ -61,13 +68,12 @@ const Home = () => {
                 let chatbox = document.getElementById('feed');
                 let newData = res.data.bot;
                 if(res.status ===200){
-                    // console.log(newData);
+                    console.log(newData);
                     let index = 0;
                     let interval = setInterval(() => {
                         if(index<newData.length){
                             chatbox.innerHTML+=newData.charAt(index)
                             setAiFeedback(undefined);
-                            chatbox.scrollTop = chatbox.scrollHeight;
                             index++;
                         }
                         else{
@@ -86,6 +92,81 @@ const Home = () => {
             })
         }
     }
+
+    //text to speech
+    
+  const textToSpeech = ()=>{
+      resetTranscript();
+      if (!browserSupportsSpeechRecognition) {
+        alert("Browser doesn't support speech recognition.")
+      }
+      else if(!isMicrophoneAvailable){
+          alert("Allow microphone for speech recognition.")
+      }
+      else{
+         try {
+            SpeechRecognition.startListening({ 
+                continuous: true, 
+            })
+            setTyping("Recording");
+         } catch (err) {
+             console.log(err);
+         }
+          
+      }
+    
+  }
+  const textToStop=async()=>{
+        SpeechRecognition.stopListening();
+        setAiFeedback('')
+        setAiState('Thinking');
+        setTyping('Waiting')
+        // console.log(message);
+        if(transcript===''){
+            setIsEmpty(true);
+            setTyping('Idle')
+            setAiState('Idle');
+            alert('Nothing recorded. Try again \nIn some cases, unsupported browsers can cause this')
+        }
+        else{
+            const data = {
+                prompt:transcript
+            }
+
+            await axios.post(url, data).then(res=>{
+                setAiState('Idle');
+                setTyping('Idle')
+                setUserInput(transcript);
+                // console.log(res.data);
+                document.getElementById('myform').reset();
+                let chatbox = document.getElementById('feed');
+                let newData = res.data.bot;
+                if(res.status ===200){
+                    console.log(newData);
+                    let index = 0;
+                    let interval = setInterval(() => {
+                        if(index<newData.length){
+                            chatbox.innerHTML+=newData.charAt(index)
+                            setAiFeedback(undefined);
+                            index++;
+                        }
+                        else{
+                            clearInterval(interval)
+                        }
+                    }, 20);
+                    setTyping('Reading')
+                }
+                else{
+                    setAiFeedback('Error occured in the operation');
+                }
+            })
+            .catch(err=>{
+                console.log(err);
+                setAiState('Idle')
+            })
+        }
+  }
+
     useEffect(()=>{
         const keyDownHandler =e=>{
             // alert('user pressed:', e.key)
@@ -98,10 +179,10 @@ const Home = () => {
             document.removeEventListener('keydown', keyDownHandler);
         }
     },[])
-    // console.log(uniqueId())
     const handleGit = ()=>{
         window.open('https://github.com/JuniorFixHow/GPT-3-v1.git','blank')
     }
+    // console.log(transcript)
     return (
         <div className='home' >
           <div className="top">
@@ -119,13 +200,19 @@ const Home = () => {
                         <span className={black?'ai-answer':'ai-answer-white'} >{aistate}</span>
                     </div>
                     <div className="data">
-                        <span className={black?"question":"question-white"} >{userInput}</span>
+                        <span className={black?"question":"question-white"} >{listening?transcript:userInput}</span>
                         <span className={black? "answer":"answer-white"} id='feed'>{aiFeedback}</span>
                     </div>
                 </div>
             <div className="down">
                 <form onSubmit={handleSubmit} id='myform'>
                     <input type='text' className={black?'text-input':"text-input-white"} id='message' onChange={(e)=>setMessage(e.target.value)}  onFocus={(e)=>setTyping('Thinking')} onBlur={(e)=>setTyping('Idle')}  onInput ={userType}  placeholder={isEmpty?'* Required':'Ask your question...'} />
+                    {
+                        listening?
+                        <BsFillMicMuteFill onClick={textToStop} className='mute' />
+                        :
+                        <BsFillMicFill onClick={textToSpeech} className='talk' />
+                    }
                 </form>
             </div>
           </div>

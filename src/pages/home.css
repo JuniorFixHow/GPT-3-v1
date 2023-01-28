@@ -107,25 +107,23 @@
    font-weight: 100;
    font-size: 1rem;
 }
-.home form .bt-icon-white{
+.home form .mute{
     font-size: 3rem;
     background: none;
-    color: rgb(17, 153, 153);
+    color: crimson;
     cursor: pointer;
-    transform: rotate(90deg);
 }
-.home form .bt-icon{
-    font-size: 3rem;
+.home form .talk{
+    font-size: 2rem;
     background: none;
-    color: aqua;
-    cursor: pointer;
-    transform: rotate(90deg);
+    color: rgba(0, 0, 255, 0.795);
+    cursor: pointer;   
 }
-.home form .bt-icon-answer:hover{
-    color: aqua;
+.home form .talk:hover{
+    color: blue;
 }
-.home form .bt-icon:hover{
-    color: rgb(17, 153, 153);
+.home form .mute:hover{
+    color: red;
 }
 
 .home .actions{
@@ -218,6 +216,7 @@
     width: 90%;
     overflow-wrap: break-word;
     height: 25rem;
+    white-space: pre-wrap;
     overflow-y: scroll;
 }
 .home .data .answer{
@@ -233,10 +232,14 @@
     width: 90%;
     overflow-wrap: break-word;
     height: 25rem;
+    white-space: pre-wrap;
     overflow-y: scroll;
 }
 
 @media screen and (max-width:1024px) {
+    .home{
+        height: 100vh;
+    }
     .home .data .answer, .answer-white{
         width: 95%;
         height: 30rem;
@@ -247,6 +250,9 @@
     }
 }
 @media screen and (max-width:600px) {
+    .home{
+        height: 100vh;
+    }
     .home .data .answer, .answer-white{
         width: 90%;
         height: 24rem;
