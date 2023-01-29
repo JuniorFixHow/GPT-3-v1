@@ -211,7 +211,7 @@ const Home = () => {
                         listening?
                         <BsFillMicMuteFill onClick={textToStop} className='mute' />
                         :
-                        <BsFillMicFill onClick={textToSpeech} className='talk' />
+                        <BsFillMicFill onClick={textToSpeech} className={black? 'talk':'talk-white'} />
                     }
                 </form>
             </div>

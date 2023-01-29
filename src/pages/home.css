@@ -116,11 +116,17 @@
 .home form .talk{
     font-size: 2rem;
     background: none;
-    color: rgba(0, 0, 255, 0.795);
+    color: white;
+    cursor: pointer;   
+}
+.home form .talk-white{
+    font-size: 2rem;
+    background: none;
+    color: teal;
     cursor: pointer;   
 }
 .home form .talk:hover{
-    color: blue;
+    color: gainsboro;
 }
 .home form .mute:hover{
     color: red;
